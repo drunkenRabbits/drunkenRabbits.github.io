@@ -8,6 +8,19 @@ import {stream as wiredep} from 'wiredep';
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
+var getJsonData = function(file) {
+  return require('./app/templates/' + path.basename(file.path) + '.json');
+}
+
+var path = require('path');
+
+gulp.task('templates', () => {
+  return gulp.src('app/templates/*.html')
+    .pipe($.data(getJsonData))
+    .pipe($.swig())
+    .pipe(gulp.dest('app'));
+});
+
 gulp.task('styles', () => {
   return gulp.src('app/styles/*.scss')
     .pipe($.plumber())
@@ -41,7 +54,7 @@ const testLintOptions = {
 gulp.task('lint', lint('app/scripts/**/*.js'));
 gulp.task('lint:test', lint('test/spec/**/*.js', testLintOptions));
 
-gulp.task('html', ['styles'], () => {
+gulp.task('html', ['templates', 'styles'], () => {
   const assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
 
   return gulp.src('app/*.html')
